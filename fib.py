@@ -6,6 +6,7 @@
 # Solution
 
 import sys
+import os
 
 def main():
     args = sys.argv[1:]
@@ -30,6 +31,8 @@ Usage
         phi_approx(int(args[1]))
     elif args[0] == "converge" and len(args) == 1:
         phi_converge()
+    elif args[0] == "converge" and len(args) == 2:
+        phi_converge(args[1])
     else:
         print "Error: input not understood.\n" \
                 "    Type './fib.py help' for info on this program."
@@ -39,7 +42,7 @@ def fib(n):
     # Create the base case
     n0 = 0
     n1 = 1
-    
+
     # Loop n times. Just ignore the variable i.
     for i in range(n):
         n_new = n0 + n1
@@ -67,18 +70,31 @@ phi_converge_output_format = \
     phi_old: {:.25f}
     phi_new: {:.25f}"""
 
-def phi_converge():
+def phi_converge(filename=""):
     """Keep calculating higher-order Fibonacci approximations to the golden
     ratio until it stops changing (to floating-point precision)."""
 
+    if filename != "":
+        if os.path.exists(filename):
+    	    append_write = 'a'
+    	else:
+    	    append_write = 'w'
+        f = open(filename, append_write)
     i = 3
     phi_old = phi_approx(i - 1, show_output=False)
-    phi_new = phi_approx(i)
+    phi_new = phi_approx(i, show_output=False)
     while phi_old != phi_new:
         i += 1
         phi_old = phi_new
         phi_new = phi_approx(i, show_output=False)
-        print phi_converge_output_format.format(i, phi_new, phi_old)
-    print "\nConverged to %.25f" % phi_new
+        if filename != "":
+            f.write(phi_converge_output_format.format(i, phi_new, phi_old) + "\n")
+        else:
+            print phi_converge_output_format.format(i, phi_new, phi_old)
+    if filename != "":
+    	f.write("\nConverged to %.25f\n" % phi_new)
+    	f.close()
+    else:
+        print "\nConverged to %.25f\n" % phi_new
 
 if __name__ == '__main__': main()
